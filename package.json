@@ -1,0 +1,25 @@
+{
+  "name": "app-webserver",
+  "version": "0.0.1",
+  "description": "Express-based Web Server",
+  "homepage": "https://github.com/devebot/app-webserver.git",
+  "author": {
+    "name": "pnhung177",
+    "email": "apporo@devebot.com",
+    "url": ""
+  },
+  "main": "index.js",
+  "engines": {
+    "node": "0.10 || 0.11 || 0.12 || 4"
+  },
+  "keywords": [
+    "devebot",
+    "devebot-plugin"
+  ],
+  "devDependencies": {
+    "devebot": "^0.1.14"
+  },
+  "peerDependencies": {
+    "devebot": "^0.1.14"
+  }
+}
