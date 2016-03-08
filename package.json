@@ -1,12 +1,12 @@
 {
   "name": "app-webserver",
-  "version": "0.0.1",
-  "description": "Express-based Web Server",
+  "version": "0.0.2",
+  "description": "Express-based Webserver Devebot layerware",
   "homepage": "https://github.com/devebot/app-webserver.git",
   "author": {
-    "name": "pnhung177",
+    "name": "apporo",
     "email": "apporo@devebot.com",
-    "url": ""
+    "url": "http://devebot.com"
   },
   "main": "index.js",
   "engines": {
@@ -17,16 +17,13 @@
     "devebot-plugin"
   ],
   "devDependencies": {
-    "debug": "^2.2.0",
-    "devebot": "^0.1.14"
+    "devebot": "^0.1.15"
   },
   "peerDependencies": {
-    "devebot": "^0.1.14"
+    "devebot": "^0.1.15"
   },
   "dependencies": {
-    "body-parser": "^1.15.0",
     "express": "^4.13.4",
-    "express-session": "^1.13.0",
     "lodash": "^4.6.1"
   }
 }
