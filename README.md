@@ -1,3 +1,3 @@
 # app-webserver
 
-> Devebot app-webserver layerware
+> Devebot express-based webserver layerware
