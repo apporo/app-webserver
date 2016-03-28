@@ -1,6 +1,6 @@
 {
   "name": "app-webserver",
-  "version": "0.0.4",
+  "version": "0.0.5-alpha.0",
   "description": "Devebot express-based webserver layerware",
   "homepage": "https://github.com/devebot/app-webserver.git",
   "author": {
@@ -17,10 +17,11 @@
     "devebot-plugin"
   ],
   "peerDependencies": {
-    "devebot": "^0.1.17"
+    "devebot": "^0.1.19"
   },
   "dependencies": {
-    "devebot": "^0.1.17",
+    "devebot": "^0.1.19",
+    "ejs": "^2.4.1",
     "express": "^4.13.4"
   }
 }

@@ -1,1 +1,1 @@
-module.exports = require('devebot').attachLayer.bind(undefined, __dirname);
+module.exports = require('devebot').registerLayerware(__dirname);
