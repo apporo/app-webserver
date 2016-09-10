@@ -1,6 +1,6 @@
 {
   "name": "app-webserver",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Devebot express-based webserver layerware",
   "homepage": "https://github.com/devebot/app-webserver.git",
   "author": {
