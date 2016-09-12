@@ -6,8 +6,9 @@ module.exports = {
       session: {
         name: 'sessionId',
         secret: 'd0bi3td4y',
-        mongodb: {
-          uri: 'mongodb://localhost:27017/devebot-session'
+        store: {
+          type: 'redis',
+          url: 'redis://localhost:6379'
         }
       },
       cacheControl: {
@@ -15,7 +16,7 @@ module.exports = {
         pattern: {
           operator: 'or',
           url: /^\/(assets|css|js|picture|font)\/.+/,
-          contentType: /^\/(jpeg|png|gif)$/  
+          contentType: /^\/(jpeg|png|gif)$/
         },
         maxAge: 3600
       },
