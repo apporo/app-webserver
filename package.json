@@ -1,6 +1,6 @@
 {
   "name": "app-webserver",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Devebot express-based webserver layerware",
   "homepage": "https://github.com/devebot/app-webserver.git",
   "author": {
@@ -31,6 +31,7 @@
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "helmet": "^1.3.0",
-    "method-override": "^2.3.5"
+    "method-override": "^2.3.5",
+    "request-tracer": "^0.1.2"
   }
 }
