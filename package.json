@@ -1,6 +1,6 @@
 {
   "name": "app-webserver",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Devebot express-based webserver layerware",
   "homepage": "https://github.com/devebot/app-webserver.git",
   "author": {
@@ -27,6 +27,7 @@
     "cookie-parser": "^1.4.1",
     "csurf": "^1.8.3",
     "devebot": "^0.1.23",
+    "ejs": "^2.5.2",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "helmet": "^1.3.0",
