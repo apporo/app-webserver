@@ -1,6 +1,6 @@
 {
   "name": "app-webserver",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Devebot express-based webserver layerware",
   "homepage": "https://github.com/devebot/app-webserver.git",
   "author": {
@@ -17,7 +17,7 @@
     "devebot-plugin"
   ],
   "peerDependencies": {
-    "devebot": "^0.1.21"
+    "devebot": "^0.1.23"
   },
   "dependencies": {
     "body-parser": "^1.15.0",
@@ -26,12 +26,11 @@
     "connect-redis": "^3.0.2",
     "cookie-parser": "^1.4.1",
     "csurf": "^1.8.3",
-    "devebot": "^0.1.21",
+    "devebot": "^0.1.23",
     "ejs": "^2.4.1",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "helmet": "^1.3.0",
-    "method-override": "^2.3.5",
-    "request-tracer": "^0.1.4"
+    "method-override": "^2.3.5"
   }
 }

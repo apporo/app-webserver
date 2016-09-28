@@ -11,6 +11,7 @@ module.exports = {
           url: 'redis://localhost:6379'
         }
       },
+      jsonBodySizeLimit: '1mb',
       cacheControl: {
         enabled: false,
         pattern: {
