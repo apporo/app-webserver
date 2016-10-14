@@ -21,6 +21,7 @@ module.exports = {
         },
         maxAge: 3600
       },
+      setPoweredBy: false,
       printRequestInfo: false
     }
   }
