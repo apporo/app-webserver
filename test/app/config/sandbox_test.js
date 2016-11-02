@@ -1,5 +1,7 @@
 module.exports = {
   plugins: {
-    appWebserver: {}
+    appWebserver: {
+      defaultRedirectUrl: '/webserver/dashboard'
+    }
   }
 };
