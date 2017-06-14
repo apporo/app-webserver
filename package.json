@@ -10,9 +10,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "pretest": "pm2 start test/app/process.json",
-    "test": "node_modules/.bin/cucumber.js test/bdd/features/${BDD_FILE:-*.feature}",
-    "posttest": "pm2 delete test/app/process.json"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
     "node": "0.10 || 0.11 || 0.12 || 4"
