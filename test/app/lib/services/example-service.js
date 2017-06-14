@@ -7,7 +7,7 @@ var Devebot = require('devebot');
 var lodash = Devebot.require('lodash');
 var loader = Devebot.require('loader');
 var debug = Devebot.require('debug');
-var debuglog = debug('appWebserver:example1');
+var debuglog = debug('appWebserver:example');
 var express = require('express');
 
 var Service = function(params) {
@@ -26,20 +26,35 @@ var Service = function(params) {
     var app = express();
 
     app.use('*', function(req, res, next) {
+      process.nextTick(function() {
+        debuglog('=@ example receives a new request:');
+        debuglog(' - Invoker IP: %s / %s', req.ip, JSON.stringify(req.ips));
+        debuglog(' - protocol: ' + req.protocol);
+        debuglog(' - host: ' + req.hostname);
+        debuglog(' - path: ' + req.path);
+        debuglog(' - URL: ' + req.url);
+        debuglog(' - originalUrl: ' + req.originalUrl);
+        debuglog(' - body: ' + JSON.stringify(req.body));
+        debuglog(' - user-agent: ' + req.headers['user-agent']);
+      });
       next();
     });
 
-    var router = express.Router();
+    app.get('/example/:id', function(req, res) {
+      res.status(200).json({
+        message: 'example [' + req.params.id + '] request successfully'
+      });
+    });
 
-    var trigger = params.webserverTrigger;
-    trigger && trigger.getServer().on('request', app);
+    params.webserverTrigger.legacyMode = false;
+    params.webserverTrigger.server.on('request', app);
   }
 
   debuglog.isEnabled && debuglog(' - constructor end!');
 };
 
 Service.argumentSchema = {
-  "id": "example1Service",
+  "id": "exampleService",
   "type": "object",
   "properties": {
     "sandboxName": {
