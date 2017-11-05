@@ -19,7 +19,7 @@ var Service = function(params) {
 
   var logger = self.logger = params.loggingFactory.getLogger();
 
-  var pluginCfg = lodash.get(params, ['sandboxConfig', 'plugins', 'appWebserver'], {});
+  var pluginCfg = params.sandboxConfig;
   debuglog.isEnabled && debuglog('configuration: %s', JSON.stringify(pluginCfg));
 
   if (pluginCfg.enabled !== false) {

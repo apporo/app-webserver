@@ -9,5 +9,10 @@ module.exports = {
         colorize: true
       }
     }
+  },
+  newFeatures: {
+    application: {
+      sandboxConfig: true
+    }
   }
 };
