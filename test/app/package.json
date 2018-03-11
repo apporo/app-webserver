@@ -1,0 +1,14 @@
+{
+  "name": "app-webserver-example",
+  "version": "0.1.0",
+  "description": "Devebot appWebserver Example",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "devebot",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}

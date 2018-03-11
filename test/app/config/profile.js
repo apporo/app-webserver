@@ -12,6 +12,7 @@ module.exports = {
   },
   newFeatures: {
     application: {
+      logoliteEnabled: true,
       sandboxConfig: true
     }
   }

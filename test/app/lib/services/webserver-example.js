@@ -6,8 +6,7 @@ var util = require('util');
 var Devebot = require('devebot');
 var lodash = Devebot.require('lodash');
 var loader = Devebot.require('loader');
-var debug = Devebot.require('debug');
-var debuglog = debug('appWebserver:example');
+var debuglog = Devebot.require('pinbug')('appWebserver:example');
 var express = require('express');
 
 var Service = function(params) {
@@ -17,7 +16,8 @@ var Service = function(params) {
 
   var self = this;
 
-  var logger = self.logger = params.loggingFactory.getLogger();
+  var LX = params.loggingFactory.getLogger();
+  var LT = params.loggingFactory.getTracer();
 
   var pluginCfg = params.sandboxConfig;
   debuglog.isEnabled && debuglog('configuration: %s', JSON.stringify(pluginCfg));
@@ -46,36 +46,12 @@ var Service = function(params) {
       });
     });
 
-    params.webserverTrigger.legacyMode = false;
     params.webserverTrigger.server.on('request', app);
   }
 
   debuglog.isEnabled && debuglog(' - constructor end!');
 };
 
-Service.argumentSchema = {
-  "id": "exampleService",
-  "type": "object",
-  "properties": {
-    "sandboxName": {
-      "type": "string"
-    },
-    "sandboxConfig": {
-      "type": "object"
-    },
-    "profileConfig": {
-      "type": "object"
-    },
-    "generalConfig": {
-      "type": "object"
-    },
-    "loggingFactory": {
-      "type": "object"
-    },
-    "webserverTrigger": {
-      "type": "object"
-    }
-  }
-};
+Service.referenceList = [ 'webserverTrigger' ];
 
 module.exports = Service;

@@ -5,7 +5,7 @@ var app = require('devebot').launchApplication({
 }, [
   {
     name: 'app-webserver',
-    path: '../../index.js'
+    path: require('path').join(__dirname, '../../index.js')
   }
 ]);
 
