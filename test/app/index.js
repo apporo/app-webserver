@@ -1,11 +1,13 @@
 'use strict';
 
+var path = require('path');
+
 var app = require('devebot').launchApplication({
   appRootPath: __dirname
 }, [
   {
     name: 'app-webserver',
-    path: require('path').join(__dirname, '../../index.js')
+    path: path.join(__dirname, '../../index.js')
   }
 ]);
 
