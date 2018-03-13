@@ -79,27 +79,44 @@ var Service = function(params) {
   });
 
   self.attach = self.register = function(outlet) {
-    debugx.enabled && debugx('attach() - try to register a outlet');
+    LX.has('silly') && LX.log('silly', LT.toMessage({
+      tags: [ crateID, 'attach', 'begin' ],
+      text: 'attach() - try to register a outlet'
+    }));
     if (server.listeners('request').indexOf(outlet) >= 0) {
-      debugx.enabled && debugx('attach() - outlet has already attached. skip');
+      LX.has('silly') && LX.log('silly', LT.toMessage({
+        tags: [ crateID, 'attach', 'skip' ],
+        text: 'attach() - outlet has already attached. skip!'
+      }));
     } else {
-      debugx.enabled && debugx('attach() - attach the outlet');
       server.addListener('request', outlet);
+      LX.has('silly') && LX.log('silly', LT.toMessage({
+        tags: [ crateID, 'attach', 'done' ],
+        text: 'attach() - attach the outlet'
+      }));
     }
   }
 
   self.detach = self.unregister = function(outlet) {
-    debugx.enabled && debugx('detach() - try to unregister a outlet');
+    LX.has('silly') && LX.log('silly', LT.toMessage({
+      tags: [ crateID, 'detach', 'begin' ],
+      text: 'detach() - try to unregister a outlet'
+    }));
     if (server.listeners('request').indexOf(outlet) >= 0) {
-      debugx.enabled && debugx('detach() - detach the outlet');
       server.removeListener('request', outlet);
+      LX.has('silly') && LX.log('silly', LT.toMessage({
+        tags: [ crateID, 'detach', 'done' ],
+        text: 'detach() - detach the outlet'
+      }));
     } else {
-      debugx.enabled && debugx('detach() - outlet is not available. skip');
+      LX.has('silly') && LX.log('silly', LT.toMessage({
+        tags: [ crateID, 'detach', 'skip' ],
+        text: 'detach() - outlet is not available. skip!'
+      }));
     }
   }
 
   self.start = function() {
-    debugx.enabled && debugx(' - initialize the middlewares ...');
     return new Promise(function(resolved, rejected) {
       var serverInstance = server.listen(appPort, appHost, function () {
         var host = serverInstance.address().address;
