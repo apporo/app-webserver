@@ -1,7 +1,7 @@
 {
   "name": "app-webserver",
   "version": "0.2.2",
-  "description": "Devebot express-based webserver layerware",
+  "description": "Devebot webserver layerware",
   "homepage": "https://github.com/apporo/app-webserver.git",
   "author": {
     "name": "apporo",
@@ -24,9 +24,6 @@
     "pretest": "NODE_ENV=test npm run build",
     "test": "cucumber-js test/**/*.feature",
     "verify": "npm run prepublish && cucumber-js test/**/*.feature"
-  },
-  "engines": {
-    "node": "0.10 || 0.11 || 0.12 || 4"
   },
   "keywords": [
     "devebot",

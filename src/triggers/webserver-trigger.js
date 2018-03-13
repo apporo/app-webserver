@@ -1,8 +1,9 @@
 'use strict';
 
 var Devebot = require('devebot');
+var chores = Devebot.require('chores');
 var lodash = Devebot.require('lodash');
-var debugx = Devebot.require('pinbug')('appWebserver:trigger');
+var pinbug = Devebot.require('pinbug');
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
@@ -10,15 +11,20 @@ var https = require('https');
 var SERVER_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost'];
 
 var Service = function(params) {
-  debugx.enabled && debugx(' + constructor begin ...');
-
   params = params || {};
   var self = this;
 
+  var crateID = chores.getBlockRef(__filename, 'app-webweaver');
   var LX = params.loggingFactory.getLogger();
   var LT = params.loggingFactory.getTracer();
-  var pluginCfg = params.sandboxConfig;
 
+  LX.has('silly') && LX.log('silly', LT.toMessage({
+    tags: [ crateID, 'constructor-begin' ],
+    text: ' + constructor start ...'
+  }));
+
+  var debugx = pinbug('app-webserver:trigger');
+  var pluginCfg = params.sandboxConfig;
   var appHost = pluginCfg && pluginCfg.host || '0.0.0.0';
   var appPort = pluginCfg && pluginCfg.port || 7979;
   var appProto = 'http';
@@ -31,6 +37,13 @@ var Service = function(params) {
 
   if (pluginCfg.ssl && pluginCfg.ssl.enabled) {
     pluginCfg.ssl = pluginCfg.ssl || {};
+
+    LX.has('silly') && LX.log('silly', LT.add({
+      sslConfig: pluginCfg.ssl
+    }).toMessage({
+      tags: [ crateID, 'ssl', 'enabled' ],
+      text: 'SSL is enabled'
+    }));
 
     ssl.ca = pluginCfg.ssl.ca;
     try {
@@ -56,7 +69,18 @@ var Service = function(params) {
     if (ssl.key && ssl.cert) {
       appProto = 'https';
       ssl.available = true;
+      LX.has('silly') && LX.log('silly', LT.add({
+        ssl: ssl
+      }).toMessage({
+        tags: [ crateID, 'ssl', 'available' ],
+        text: 'HTTPs is available'
+      }));
     }
+  } else {
+    LX.has('silly') && LX.log('silly', LT.toMessage({
+      tags: [ crateID, 'ssl', 'disabled' ],
+      text: 'SSL is disabled'
+    }));
   }
 
   var server = ssl.available ? https.createServer({
@@ -73,44 +97,61 @@ var Service = function(params) {
   });
 
   self.attach = self.register = function(outlet) {
-    debugx.enabled && debugx('attach() - try to register a outlet');
+    LX.has('silly') && LX.log('silly', LT.toMessage({
+      tags: [ crateID, 'attach', 'begin' ],
+      text: 'attach() - try to register a outlet'
+    }));
     if (server.listeners('request').indexOf(outlet) >= 0) {
-      debugx.enabled && debugx('attach() - outlet has already attached. skip');
+      LX.has('silly') && LX.log('silly', LT.toMessage({
+        tags: [ crateID, 'attach', 'skip' ],
+        text: 'attach() - outlet has already attached. skip!'
+      }));
     } else {
-      debugx.enabled && debugx('attach() - attach the outlet');
       server.addListener('request', outlet);
+      LX.has('silly') && LX.log('silly', LT.toMessage({
+        tags: [ crateID, 'attach', 'done' ],
+        text: 'attach() - attach the outlet'
+      }));
     }
   }
 
   self.detach = self.unregister = function(outlet) {
-    debugx.enabled && debugx('detach() - try to unregister a outlet');
+    LX.has('silly') && LX.log('silly', LT.toMessage({
+      tags: [ crateID, 'detach', 'begin' ],
+      text: 'detach() - try to unregister a outlet'
+    }));
     if (server.listeners('request').indexOf(outlet) >= 0) {
-      debugx.enabled && debugx('detach() - detach the outlet');
       server.removeListener('request', outlet);
+      LX.has('silly') && LX.log('silly', LT.toMessage({
+        tags: [ crateID, 'detach', 'done' ],
+        text: 'detach() - detach the outlet'
+      }));
     } else {
-      debugx.enabled && debugx('detach() - outlet is not available. skip');
+      LX.has('silly') && LX.log('silly', LT.toMessage({
+        tags: [ crateID, 'detach', 'skip' ],
+        text: 'detach() - outlet is not available. skip!'
+      }));
     }
   }
 
   self.start = function() {
-    debugx.enabled && debugx(' - initialize the middlewares ...');
-    return new Promise(function(resolved, rejected) {
+    return new Promise(function(onResolved, onRejected) {
       var serverInstance = server.listen(appPort, appHost, function () {
         var host = serverInstance.address().address;
         var port = serverInstance.address().port;
-        (pluginCfg && pluginCfg.verbose !== false || debugx.enabled) &&
+        chores.isVerboseForced('webserver', pluginCfg) &&
         console.log('webserver is listening on %s://%s:%s', appProto, host, port);
-        resolved(serverInstance);
+        onResolved(serverInstance);
       });
     });
   };
 
   self.stop = function() {
-    return new Promise(function(resolved, rejected) {
+    return new Promise(function(onResolved, onRejected) {
       server.close(function (err) {
-        (pluginCfg && pluginCfg.verbose !== false || debugx.enabled) &&
+        chores.isVerboseForced('webserver', pluginCfg) &&
         console.log('webserver has been closed');
-        resolved();
+        onResolved();
       });
     });
   };
@@ -138,7 +179,10 @@ var Service = function(params) {
     };
   };
 
-  debugx.enabled && debugx(' - constructor end!');
+  LX.has('silly') && LX.log('silly', LT.toMessage({
+    tags: [ crateID, 'constructor-end' ],
+    text: ' - constructor has finished'
+  }));
 };
 
 module.exports = Service;
