@@ -1,0 +1,16 @@
+{
+  "name": "private-test",
+  "version": "0.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "devebot",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "superagent": "^2.3.0"
+  },
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}

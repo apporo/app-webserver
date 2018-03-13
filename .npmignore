@@ -2,5 +2,6 @@ dist
 examples
 test
 .hit
+.babelrc
 .gitignore
 .npmignore
