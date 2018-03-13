@@ -6,7 +6,7 @@ var debugx = Devebot.require('pinbug')('appWebserver:example');
 var express = require('express');
 
 var Service = function(params) {
-  debugx.isEnabled && debugx(' + constructor begin ...');
+  debugx.enabled && debugx(' + constructor begin ...');
 
   params = params || {};
   var self = this;
@@ -15,7 +15,7 @@ var Service = function(params) {
   var LT = params.loggingFactory.getTracer();
 
   var pluginCfg = params.sandboxConfig;
-  debugx.isEnabled && debugx('configuration: %s', JSON.stringify(pluginCfg));
+  debugx.enabled && debugx('configuration: %s', JSON.stringify(pluginCfg));
 
   if (pluginCfg.enabled !== false) {
     var app = express();
@@ -44,7 +44,7 @@ var Service = function(params) {
     params.webserverTrigger.server.on('request', app);
   }
 
-  debugx.isEnabled && debugx(' - constructor end!');
+  debugx.enabled && debugx(' - constructor end!');
 };
 
 Service.referenceList = [ 'webserverTrigger' ];
