@@ -38,6 +38,13 @@ var Service = function(params) {
   if (pluginCfg.ssl && pluginCfg.ssl.enabled) {
     pluginCfg.ssl = pluginCfg.ssl || {};
 
+    LX.has('silly') && LX.log('silly', LT.add({
+      sslConfig: pluginCfg.ssl
+    }).toMessage({
+      tags: [ crateID, 'ssl', 'enabled' ],
+      text: 'SSL is enabled'
+    }));
+
     ssl.ca = pluginCfg.ssl.ca;
     try {
       ssl.ca = ssl.ca || fs.readFileSync(pluginCfg.ssl.ca_file);
@@ -62,7 +69,18 @@ var Service = function(params) {
     if (ssl.key && ssl.cert) {
       appProto = 'https';
       ssl.available = true;
+      LX.has('silly') && LX.log('silly', LT.add({
+        ssl: ssl
+      }).toMessage({
+        tags: [ crateID, 'ssl', 'available' ],
+        text: 'HTTPs is available'
+      }));
     }
+  } else {
+    LX.has('silly') && LX.log('silly', LT.toMessage({
+      tags: [ crateID, 'ssl', 'disabled' ],
+      text: 'SSL is disabled'
+    }));
   }
 
   var server = ssl.available ? https.createServer({
@@ -117,23 +135,23 @@ var Service = function(params) {
   }
 
   self.start = function() {
-    return new Promise(function(resolved, rejected) {
+    return new Promise(function(onResolved, onRejected) {
       var serverInstance = server.listen(appPort, appHost, function () {
         var host = serverInstance.address().address;
         var port = serverInstance.address().port;
         chores.isVerboseForced('webserver', pluginCfg) &&
         console.log('webserver is listening on %s://%s:%s', appProto, host, port);
-        resolved(serverInstance);
+        onResolved(serverInstance);
       });
     });
   };
 
   self.stop = function() {
-    return new Promise(function(resolved, rejected) {
+    return new Promise(function(onResolved, onRejected) {
       server.close(function (err) {
         chores.isVerboseForced('webserver', pluginCfg) &&
         console.log('webserver has been closed');
-        resolved();
+        onResolved();
       });
     });
   };
