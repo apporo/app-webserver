@@ -1,8 +1,9 @@
 'use strict';
 
 var Devebot = require('devebot');
+var chores = Devebot.require('chores');
 var lodash = Devebot.require('lodash');
-var debugx = Devebot.require('pinbug')('appWebserver:trigger');
+var pinbug = Devebot.require('pinbug');
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
@@ -10,15 +11,20 @@ var https = require('https');
 var SERVER_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost'];
 
 var Service = function(params) {
-  debugx.enabled && debugx(' + constructor begin ...');
-
   params = params || {};
   var self = this;
 
+  var crateID = chores.getBlockRef(__filename, 'app-webweaver');
   var LX = params.loggingFactory.getLogger();
   var LT = params.loggingFactory.getTracer();
-  var pluginCfg = params.sandboxConfig;
 
+  LX.has('silly') && LX.log('silly', LT.toMessage({
+    tags: [ crateID, 'constructor-begin' ],
+    text: ' + constructor start ...'
+  }));
+
+  var debugx = pinbug('app-webserver:trigger');
+  var pluginCfg = params.sandboxConfig;
   var appHost = pluginCfg && pluginCfg.host || '0.0.0.0';
   var appPort = pluginCfg && pluginCfg.port || 7979;
   var appProto = 'http';
@@ -98,7 +104,7 @@ var Service = function(params) {
       var serverInstance = server.listen(appPort, appHost, function () {
         var host = serverInstance.address().address;
         var port = serverInstance.address().port;
-        (pluginCfg && pluginCfg.verbose !== false || debugx.enabled) &&
+        chores.isVerboseForced('webserver', pluginCfg) &&
         console.log('webserver is listening on %s://%s:%s', appProto, host, port);
         resolved(serverInstance);
       });
@@ -108,7 +114,7 @@ var Service = function(params) {
   self.stop = function() {
     return new Promise(function(resolved, rejected) {
       server.close(function (err) {
-        (pluginCfg && pluginCfg.verbose !== false || debugx.enabled) &&
+        chores.isVerboseForced('webserver', pluginCfg) &&
         console.log('webserver has been closed');
         resolved();
       });
@@ -138,7 +144,10 @@ var Service = function(params) {
     };
   };
 
-  debugx.enabled && debugx(' - constructor end!');
+  LX.has('silly') && LX.log('silly', LT.toMessage({
+    tags: [ crateID, 'constructor-end' ],
+    text: ' - constructor has finished'
+  }));
 };
 
 module.exports = Service;
