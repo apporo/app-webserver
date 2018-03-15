@@ -14,16 +14,17 @@
   },
   "files": [
     "bin/",
+    "config/",
     "data/",
-    "dist/",
     "lib/"
   ],
   "scripts": {
-    "build": "babel src -d lib",
+    "build": "babel ./src -d ./lib",
+    "clean": "rm -rf ./lib",
     "prepublish": "NODE_ENV=production npm run build",
     "pretest": "NODE_ENV=test npm run build",
-    "test": "cucumber-js test/**/*.feature",
-    "verify": "npm run prepublish && cucumber-js test/**/*.feature"
+    "test": "cucumber-js ./test/**/*.feature",
+    "verify": "npm run prepublish && cucumber-js ./test/**/*.feature"
   },
   "keywords": [
     "devebot",
