@@ -49,7 +49,14 @@ var Service = function(params) {
     try {
       ssl.ca = ssl.ca || fs.readFileSync(pluginCfg.ssl.ca_file);
     } catch(error) {
-      debugx.enabled && debugx('error on loading CA files: %s', JSON.stringify(error));
+      LX.has('silly') && LX.log('silly', LT.add({
+        ca: ssl.ca,
+        ca_file: pluginCfg.ssl.ca_file,
+        error: error
+      }).toMessage({
+        tags: [ crateID, 'ssl', 'ca-loading' ],
+        text: 'error on loading CA files[${ca_file}]: ${error}'
+      }));
     }
 
     ssl.key = pluginCfg.ssl.key;
@@ -58,10 +65,23 @@ var Service = function(params) {
       ssl.key = ssl.key || fs.readFileSync(pluginCfg.ssl.key_file);
       ssl.cert = ssl.cert || fs.readFileSync(pluginCfg.ssl.cert_file);
     } catch(error) {
-      debugx.enabled && debugx('error on loading key/cert files: %s', JSON.stringify(error));
+      LX.has('silly') && LX.log('silly', LT.add({
+        key: ssl.key,
+        key_file: pluginCfg.ssl.key_file,
+        cert: ssl.cert,
+        cert_file: pluginCfg.ssl.cert_file,
+        error: error
+      }).toMessage({
+        tags: [ crateID, 'ssl', 'key-cert-loading' ],
+        text: 'error on loading key/cert files: ${error}'
+      }));
     }
 
     if (!ssl.key && !ssl.cert && SERVER_HOSTS.indexOf(appHost)>=0) {
+      LX.has('silly') && LX.log('silly', LT.toMessage({
+        tags: [ crateID, 'ssl', 'key-cert-use-default' ],
+        text: 'Using default key/cert for localhost'
+      }));
       ssl.key = fs.readFileSync(path.join(__dirname, '../../data/ssl/localhost.key.pem'));
       ssl.cert = fs.readFileSync(path.join(__dirname, '../../data/ssl/localhost.cert.pem'));
     }
@@ -136,11 +156,23 @@ var Service = function(params) {
 
   self.start = function() {
     return new Promise(function(onResolved, onRejected) {
+      LX.has('silly') && LX.log('silly', LT.add({
+        protocol: appProto,
+        host: appHost,
+        port: appPort
+      }).toMessage({
+        tags: [ crateID, 'webserver', 'starting' ],
+        text: 'webserver is starting'
+      }));
       var serverInstance = server.listen(appPort, appHost, function () {
         var host = serverInstance.address().address;
         var port = serverInstance.address().port;
         chores.isVerboseForced('webserver', pluginCfg) &&
-        console.log('webserver is listening on %s://%s:%s', appProto, host, port);
+            console.log('webserver is listening on %s://%s:%s', appProto, host, port);
+        LX.has('silly') && LX.log('silly', LT.toMessage({
+          tags: [ crateID, 'webserver', 'started' ],
+          text: 'webserver has started'
+        }));
         onResolved(serverInstance);
       });
     });
@@ -148,9 +180,21 @@ var Service = function(params) {
 
   self.stop = function() {
     return new Promise(function(onResolved, onRejected) {
+      LX.has('silly') && LX.log('silly', LT.add({
+        protocol: appProto,
+        host: appHost,
+        port: appPort
+      }).toMessage({
+        tags: [ crateID, 'webserver', 'stopping' ],
+        text: 'webserver is stopping'
+      }));
       server.close(function (err) {
         chores.isVerboseForced('webserver', pluginCfg) &&
-        console.log('webserver has been closed');
+            console.log('webserver has been closed');
+        LX.has('silly') && LX.log('silly', LT.toMessage({
+          tags: [ crateID, 'webserver', 'stopped' ],
+          text: 'webserver has stopped'
+        }));
         onResolved();
       });
     });
