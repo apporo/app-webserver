@@ -2,7 +2,7 @@
 
 var Devebot = require('devebot');
 var chores = Devebot.require('chores');
-var debugx = Devebot.require('pinbug')('appWebserver:example');
+var debugx = Devebot.require('pinbug')('app-webserver:example');
 var express = require('express');
 
 var Service = function(params) {

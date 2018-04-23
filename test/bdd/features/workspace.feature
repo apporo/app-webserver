@@ -1,1 +1,0 @@
-Feature: Temporary workspace
