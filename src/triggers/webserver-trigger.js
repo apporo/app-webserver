@@ -3,7 +3,6 @@
 var Devebot = require('devebot');
 var chores = Devebot.require('chores');
 var lodash = Devebot.require('lodash');
-var pinbug = Devebot.require('pinbug');
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
@@ -14,16 +13,16 @@ var Service = function(params) {
   params = params || {};
   var self = this;
 
-  var crateID = chores.getBlockRef(__filename, 'app-webweaver');
   var LX = params.loggingFactory.getLogger();
   var LT = params.loggingFactory.getTracer();
+  var packageName = params.packageName || 'app-webserver';
+  var blockRef = chores.getBlockRef(__filename, packageName);
 
   LX.has('silly') && LX.log('silly', LT.toMessage({
-    tags: [ crateID, 'constructor-begin' ],
+    tags: [ blockRef, 'constructor-begin' ],
     text: ' + constructor start ...'
   }));
 
-  var debugx = pinbug('app-webserver:trigger');
   var pluginCfg = params.sandboxConfig;
   var appHost = pluginCfg && pluginCfg.host || '0.0.0.0';
   var appPort = pluginCfg && pluginCfg.port || 7979;
@@ -41,7 +40,7 @@ var Service = function(params) {
     LX.has('silly') && LX.log('silly', LT.add({
       sslConfig: pluginCfg.ssl
     }).toMessage({
-      tags: [ crateID, 'ssl', 'enabled' ],
+      tags: [ blockRef, 'ssl', 'enabled' ],
       text: 'SSL is enabled'
     }));
 
@@ -54,7 +53,7 @@ var Service = function(params) {
         ca_file: pluginCfg.ssl.ca_file,
         error: error
       }).toMessage({
-        tags: [ crateID, 'ssl', 'ca-loading' ],
+        tags: [ blockRef, 'ssl', 'ca-loading' ],
         text: 'error on loading CA files[${ca_file}]: ${error}'
       }));
     }
@@ -72,14 +71,14 @@ var Service = function(params) {
         cert_file: pluginCfg.ssl.cert_file,
         error: error
       }).toMessage({
-        tags: [ crateID, 'ssl', 'key-cert-loading' ],
+        tags: [ blockRef, 'ssl', 'key-cert-loading' ],
         text: 'error on loading key/cert files: ${error}'
       }));
     }
 
     if (!ssl.key && !ssl.cert && SERVER_HOSTS.indexOf(appHost)>=0) {
       LX.has('silly') && LX.log('silly', LT.toMessage({
-        tags: [ crateID, 'ssl', 'key-cert-use-default' ],
+        tags: [ blockRef, 'ssl', 'key-cert-use-default' ],
         text: 'Using default key/cert for localhost'
       }));
       ssl.key = fs.readFileSync(path.join(__dirname, '../../data/ssl/localhost.key.pem'));
@@ -92,13 +91,13 @@ var Service = function(params) {
       LX.has('silly') && LX.log('silly', LT.add({
         ssl: ssl
       }).toMessage({
-        tags: [ crateID, 'ssl', 'available' ],
+        tags: [ blockRef, 'ssl', 'available' ],
         text: 'HTTPs is available'
       }));
     }
   } else {
     LX.has('silly') && LX.log('silly', LT.toMessage({
-      tags: [ crateID, 'ssl', 'disabled' ],
+      tags: [ blockRef, 'ssl', 'disabled' ],
       text: 'SSL is disabled'
     }));
   }
@@ -118,18 +117,18 @@ var Service = function(params) {
 
   self.attach = self.register = function(outlet) {
     LX.has('silly') && LX.log('silly', LT.toMessage({
-      tags: [ crateID, 'attach', 'begin' ],
+      tags: [ blockRef, 'attach', 'begin' ],
       text: 'attach() - try to register a outlet'
     }));
     if (server.listeners('request').indexOf(outlet) >= 0) {
       LX.has('silly') && LX.log('silly', LT.toMessage({
-        tags: [ crateID, 'attach', 'skip' ],
+        tags: [ blockRef, 'attach', 'skip' ],
         text: 'attach() - outlet has already attached. skip!'
       }));
     } else {
       server.addListener('request', outlet);
       LX.has('silly') && LX.log('silly', LT.toMessage({
-        tags: [ crateID, 'attach', 'done' ],
+        tags: [ blockRef, 'attach', 'done' ],
         text: 'attach() - attach the outlet'
       }));
     }
@@ -137,18 +136,18 @@ var Service = function(params) {
 
   self.detach = self.unregister = function(outlet) {
     LX.has('silly') && LX.log('silly', LT.toMessage({
-      tags: [ crateID, 'detach', 'begin' ],
+      tags: [ blockRef, 'detach', 'begin' ],
       text: 'detach() - try to unregister a outlet'
     }));
     if (server.listeners('request').indexOf(outlet) >= 0) {
       server.removeListener('request', outlet);
       LX.has('silly') && LX.log('silly', LT.toMessage({
-        tags: [ crateID, 'detach', 'done' ],
+        tags: [ blockRef, 'detach', 'done' ],
         text: 'detach() - detach the outlet'
       }));
     } else {
       LX.has('silly') && LX.log('silly', LT.toMessage({
-        tags: [ crateID, 'detach', 'skip' ],
+        tags: [ blockRef, 'detach', 'skip' ],
         text: 'detach() - outlet is not available. skip!'
       }));
     }
@@ -161,7 +160,7 @@ var Service = function(params) {
         host: appHost,
         port: appPort
       }).toMessage({
-        tags: [ crateID, 'webserver', 'starting' ],
+        tags: [ blockRef, 'webserver', 'starting' ],
         text: 'webserver is starting'
       }));
       var serverInstance = server.listen(appPort, appHost, function () {
@@ -170,7 +169,7 @@ var Service = function(params) {
         chores.isVerboseForced('webserver', pluginCfg) &&
             console.log('webserver is listening on %s://%s:%s', appProto, host, port);
         LX.has('silly') && LX.log('silly', LT.toMessage({
-          tags: [ crateID, 'webserver', 'started' ],
+          tags: [ blockRef, 'webserver', 'started' ],
           text: 'webserver has started'
         }));
         onResolved(serverInstance);
@@ -185,14 +184,14 @@ var Service = function(params) {
         host: appHost,
         port: appPort
       }).toMessage({
-        tags: [ crateID, 'webserver', 'stopping' ],
+        tags: [ blockRef, 'webserver', 'stopping' ],
         text: 'webserver is stopping'
       }));
       server.close(function (err) {
         chores.isVerboseForced('webserver', pluginCfg) &&
             console.log('webserver has been closed');
         LX.has('silly') && LX.log('silly', LT.toMessage({
-          tags: [ crateID, 'webserver', 'stopped' ],
+          tags: [ blockRef, 'webserver', 'stopped' ],
           text: 'webserver has stopped'
         }));
         onResolved();
@@ -224,7 +223,7 @@ var Service = function(params) {
   };
 
   LX.has('silly') && LX.log('silly', LT.toMessage({
-    tags: [ crateID, 'constructor-end' ],
+    tags: [ blockRef, 'constructor-end' ],
     text: ' - constructor has finished'
   }));
 };
