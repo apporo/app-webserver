@@ -31,10 +31,10 @@
     "devebot-plugin"
   ],
   "peerDependencies": {
-    "devebot": "^0.2.5"
+    "devebot": "^0.2.6"
   },
   "dependencies": {
-    "devebot": "^0.2.5"
+    "devebot": "^0.2.6"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
