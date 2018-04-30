@@ -5,7 +5,13 @@
 ### Run
 
 ```shell
-$ DEBUG=devebot*,app* NODE_DEVEBOT_PROFILE=console NODE_DEVEBOT_SANDBOX=test node test/app
+export DEBUG=devebot*,app*
+export LOGOLITE_DEBUGLOG_ENABLED=true
+node test/example
+```
+
+```curl
+curl http://0.0.0.0:7979/example/1234567890
 ```
 
 ## Notes
