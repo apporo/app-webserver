@@ -1,11 +1,8 @@
 {
   "apps": [{
-    "name": "app-webserver-bdd",
+    "name": "app-webserver-example",
     "script": "test/app",
     "watch": true,
-    "env": {
-      "NODE_DEVEBOT_PROFILE": "testbdd",
-      "NODE_DEVEBOT_SANDBOX": "test"
-    }
+    "env": {}
   }]
 }

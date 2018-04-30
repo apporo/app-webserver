@@ -1,34 +1,34 @@
 'use strict';
 
-var Devebot = require('devebot');
-var chores = Devebot.require('chores');
-var lodash = Devebot.require('lodash');
-var fs = require('fs');
-var http = require('http');
-var https = require('https');
+const Devebot = require('devebot');
+const chores = Devebot.require('chores');
+const lodash = Devebot.require('lodash');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
 
-var SERVER_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost'];
+const SERVER_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost'];
 
-var Service = function(params) {
+function WebserverTrigger(params) {
   params = params || {};
-  var self = this;
+  let self = this;
 
-  var LX = params.loggingFactory.getLogger();
-  var LT = params.loggingFactory.getTracer();
-  var packageName = params.packageName || 'app-webserver';
-  var blockRef = chores.getBlockRef(__filename, packageName);
+  let LX = params.loggingFactory.getLogger();
+  let LT = params.loggingFactory.getTracer();
+  let packageName = params.packageName || 'app-webserver';
+  let blockRef = chores.getBlockRef(__filename, packageName);
 
   LX.has('silly') && LX.log('silly', LT.toMessage({
     tags: [ blockRef, 'constructor-begin' ],
     text: ' + constructor start ...'
   }));
 
-  var pluginCfg = params.sandboxConfig;
-  var appHost = pluginCfg && pluginCfg.host || '0.0.0.0';
-  var appPort = pluginCfg && pluginCfg.port || 7979;
-  var appProto = 'http';
+  let pluginCfg = params.sandboxConfig;
+  let appHost = pluginCfg && pluginCfg.host || '0.0.0.0';
+  let appPort = pluginCfg && pluginCfg.port || 7979;
+  let appProto = 'http';
 
-  var ssl = { available: false };
+  let ssl = { available: false };
   Object.defineProperty(self, 'ssl', {
     get: function() { return lodash.assign({}, ssl) },
     set: function(value) {}
@@ -102,7 +102,7 @@ var Service = function(params) {
     }));
   }
 
-  var server = ssl.available ? https.createServer({
+  let server = ssl.available ? https.createServer({
     ca: ssl.ca,
     cert: ssl.cert,
     key: ssl.key,
@@ -163,9 +163,9 @@ var Service = function(params) {
         tags: [ blockRef, 'webserver', 'starting' ],
         text: 'webserver is starting'
       }));
-      var serverInstance = server.listen(appPort, appHost, function () {
-        var host = serverInstance.address().address;
-        var port = serverInstance.address().port;
+      let serverInstance = server.listen(appPort, appHost, function () {
+        let host = serverInstance.address().address;
+        let port = serverInstance.address().port;
         chores.isVerboseForced('webserver', pluginCfg) &&
             console.log('webserver is listening on %s://%s:%s', appProto, host, port);
         LX.has('silly') && LX.log('silly', LT.toMessage({
@@ -207,7 +207,7 @@ var Service = function(params) {
   };
 
   self.getServiceHelp = function() {
-    var info = self.getServiceInfo();
+    let info = self.getServiceInfo();
     return {
       type: 'record',
       title: 'Webserver plugin trigger',
@@ -228,4 +228,4 @@ var Service = function(params) {
   }));
 };
 
-module.exports = Service;
+module.exports = WebserverTrigger;
