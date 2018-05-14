@@ -154,6 +154,7 @@ function WebserverTrigger(params) {
   }
 
   self.start = function() {
+    if (pluginCfg.enabled === false) return Promise.resolve();
     return new Promise(function(onResolved, onRejected) {
       LX.has('silly') && LX.log('silly', LT.add({
         protocol: appProto,
