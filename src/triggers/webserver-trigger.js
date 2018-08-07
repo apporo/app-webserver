@@ -18,14 +18,11 @@ function WebserverTrigger(params) {
   let packageName = params.packageName || 'app-webserver';
   let blockRef = chores.getBlockRef(__filename, packageName);
 
-  LX.has('silly') && LX.log('silly', LT.toMessage({
-    tags: [ blockRef, 'constructor-begin' ],
-    text: ' + constructor start ...'
-  }));
+  let pluginCfg = params.sandboxConfig || {};
+  let serverCfg = pluginCfg;
 
-  let pluginCfg = params.sandboxConfig;
-  let appHost = pluginCfg && pluginCfg.host || '0.0.0.0';
-  let appPort = pluginCfg && pluginCfg.port || 7979;
+  let appHost = serverCfg.host || '0.0.0.0';
+  let appPort = serverCfg.port || 7979;
   let appProto = 'http';
 
   let ssl = { available: false };
@@ -34,23 +31,23 @@ function WebserverTrigger(params) {
     set: function(value) {}
   });
 
-  if (pluginCfg.ssl && pluginCfg.ssl.enabled) {
-    pluginCfg.ssl = pluginCfg.ssl || {};
+  if (serverCfg.ssl && serverCfg.ssl.enabled) {
+    serverCfg.ssl = serverCfg.ssl || {};
 
     LX.has('silly') && LX.log('silly', LT.add({
-      sslConfig: pluginCfg.ssl
+      sslConfig: serverCfg.ssl
     }).toMessage({
       tags: [ blockRef, 'ssl', 'enabled' ],
       text: 'SSL is enabled'
     }));
 
-    ssl.ca = pluginCfg.ssl.ca;
+    ssl.ca = serverCfg.ssl.ca;
     try {
-      ssl.ca = ssl.ca || fs.readFileSync(pluginCfg.ssl.ca_file);
+      ssl.ca = ssl.ca || fs.readFileSync(serverCfg.ssl.ca_file);
     } catch(error) {
       LX.has('silly') && LX.log('silly', LT.add({
         ca: ssl.ca,
-        ca_file: pluginCfg.ssl.ca_file,
+        ca_file: serverCfg.ssl.ca_file,
         error: error
       }).toMessage({
         tags: [ blockRef, 'ssl', 'ca-loading' ],
@@ -58,17 +55,17 @@ function WebserverTrigger(params) {
       }));
     }
 
-    ssl.key = pluginCfg.ssl.key;
-    ssl.cert = pluginCfg.ssl.cert;
+    ssl.key = serverCfg.ssl.key;
+    ssl.cert = serverCfg.ssl.cert;
     try {
-      ssl.key = ssl.key || fs.readFileSync(pluginCfg.ssl.key_file);
-      ssl.cert = ssl.cert || fs.readFileSync(pluginCfg.ssl.cert_file);
+      ssl.key = ssl.key || fs.readFileSync(serverCfg.ssl.key_file);
+      ssl.cert = ssl.cert || fs.readFileSync(serverCfg.ssl.cert_file);
     } catch(error) {
       LX.has('silly') && LX.log('silly', LT.add({
         key: ssl.key,
-        key_file: pluginCfg.ssl.key_file,
+        key_file: serverCfg.ssl.key_file,
         cert: ssl.cert,
-        cert_file: pluginCfg.ssl.cert_file,
+        cert_file: serverCfg.ssl.cert_file,
         error: error
       }).toMessage({
         tags: [ blockRef, 'ssl', 'key-cert-loading' ],
@@ -154,7 +151,7 @@ function WebserverTrigger(params) {
   }
 
   self.start = function() {
-    if (pluginCfg.enabled === false) return Promise.resolve();
+    if (serverCfg.enabled === false) return Promise.resolve();
     return new Promise(function(onResolved, onRejected) {
       LX.has('silly') && LX.log('silly', LT.add({
         protocol: appProto,
@@ -222,11 +219,6 @@ function WebserverTrigger(params) {
       }
     };
   };
-
-  LX.has('silly') && LX.log('silly', LT.toMessage({
-    tags: [ blockRef, 'constructor-end' ],
-    text: ' - constructor has finished'
-  }));
 };
 
 module.exports = WebserverTrigger;
