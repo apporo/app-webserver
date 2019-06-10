@@ -11,7 +11,6 @@ const SERVER_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost'];
 
 function WebserverTrigger(params) {
   params = params || {};
-  let self = this;
 
   let LX = params.loggingFactory.getLogger();
   let LT = params.loggingFactory.getTracer();
@@ -26,7 +25,7 @@ function WebserverTrigger(params) {
   let appProto = 'http';
 
   let ssl = { available: false };
-  Object.defineProperty(self, 'ssl', {
+  Object.defineProperty(this, 'ssl', {
     get: function() { return lodash.assign({}, ssl) },
     set: function(value) {}
   });
@@ -107,12 +106,13 @@ function WebserverTrigger(params) {
     rejectUnauthorized: false
   }) : http.createServer();
 
-  Object.defineProperty(self, 'server', {
+  // @Deprecated
+  Object.defineProperty(this, 'server', {
     get: function() { return server },
     set: function(value) {}
   });
 
-  self.attach = self.register = function(outlet) {
+  this.attach = this.register = function(outlet) {
     LX.has('silly') && LX.log('silly', LT.toMessage({
       tags: [ blockRef, 'attach', 'begin' ],
       text: 'attach() - try to register a outlet'
@@ -131,7 +131,7 @@ function WebserverTrigger(params) {
     }
   }
 
-  self.detach = self.unregister = function(outlet) {
+  this.detach = this.unregister = function(outlet) {
     LX.has('silly') && LX.log('silly', LT.toMessage({
       tags: [ blockRef, 'detach', 'begin' ],
       text: 'detach() - try to unregister a outlet'
@@ -150,7 +150,7 @@ function WebserverTrigger(params) {
     }
   }
 
-  self.start = function() {
+  this.start = function() {
     if (serverCfg.enabled === false) return Promise.resolve();
     return new Promise(function(onResolved, onRejected) {
       LX.has('silly') && LX.log('silly', LT.add({
@@ -175,7 +175,7 @@ function WebserverTrigger(params) {
     });
   };
 
-  self.stop = function() {
+  this.stop = function() {
     return new Promise(function(onResolved, onRejected) {
       LX.has('silly') && LX.log('silly', LT.add({
         protocol: appProto,
@@ -197,15 +197,15 @@ function WebserverTrigger(params) {
     });
   };
 
-  self.getServiceInfo = function() {
+  this.getServiceInfo = function() {
     return {
       webserver_host: configHost,
       webserver_port: configPort
     };
   };
 
-  self.getServiceHelp = function() {
-    let info = self.getServiceInfo();
+  this.getServiceHelp = function() {
+    let info = this.getServiceInfo();
     return {
       type: 'record',
       title: 'Webserver plugin trigger',
