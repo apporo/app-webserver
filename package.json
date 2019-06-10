@@ -1,6 +1,6 @@
 {
   "name": "app-webserver",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Devebot webserver layerware",
   "homepage": "https://github.com/apporo/app-webserver.git",
   "author": {
@@ -31,10 +31,10 @@
     "devebot-plugin"
   ],
   "peerDependencies": {
-    "devebot": "^0.2.6"
+    "devebot": "^0.3.0"
   },
   "dependencies": {
-    "devebot": "^0.2.6"
+    "devebot": "^0.3.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
