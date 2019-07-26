@@ -15,12 +15,11 @@ function WebserverTrigger(params = {}) {
   const packageName = params.packageName || 'app-webserver';
   const blockRef = chores.getBlockRef(__filename, packageName);
 
-  const pluginCfg = params.sandboxConfig || {};
-  const serverCfg = pluginCfg;
+  const sandboxConfig = params.sandboxConfig || {};
+  const serverCfg = sandboxConfig;
 
-  const appHost = serverCfg.host || '0.0.0.0';
-  const appPort = serverCfg.port || 7979;
-  let appProto = 'http';
+  const host = serverCfg.host || '0.0.0.0';
+  const port = serverCfg.port || 7979;
 
   let ssl = { available: false };
   Object.defineProperty(this, 'ssl', {
@@ -70,7 +69,7 @@ function WebserverTrigger(params = {}) {
       }));
     }
 
-    if (!ssl.key && !ssl.cert && SERVER_HOSTS.indexOf(appHost)>=0) {
+    if (!ssl.key && !ssl.cert && SERVER_HOSTS.indexOf(host)>=0) {
       L.has('silly') && L.log('silly', T.toMessage({
         tags: [ blockRef, 'ssl', 'key-cert-use-default' ],
         text: 'Using default key/cert for localhost'
@@ -80,7 +79,6 @@ function WebserverTrigger(params = {}) {
     }
 
     if (ssl.key && ssl.cert) {
-      appProto = 'https';
       ssl.available = true;
       L.has('silly') && L.log('silly', T.add({ ssl }).toMessage({
         tags: [ blockRef, 'ssl', 'available' ],
@@ -93,6 +91,8 @@ function WebserverTrigger(params = {}) {
       text: 'SSL is disabled'
     }));
   }
+
+  const protocol = ssl.available ? 'https' : 'http';
 
   let server = ssl.available ? https.createServer({
     ca: ssl.ca,
@@ -149,19 +149,15 @@ function WebserverTrigger(params = {}) {
   this.start = function() {
     if (serverCfg.enabled === false) return Promise.resolve();
     return new Promise(function(onResolved, onRejected) {
-      L.has('silly') && L.log('silly', T.add({
-        protocol: appProto,
-        host: appHost,
-        port: appPort
-      }).toMessage({
+      L.has('silly') && L.log('silly', T.add({ protocol, host, port }).toMessage({
         tags: [ blockRef, 'webserver', 'starting' ],
         text: 'webserver is starting'
       }));
-      let serverInstance = server.listen(appPort, appHost, function () {
+      let serverInstance = server.listen(port, host, function () {
         let host = serverInstance.address().address;
         let port = serverInstance.address().port;
-        chores.isVerboseForced('webserver', pluginCfg) &&
-            console.log('webserver is listening on %s://%s:%s', appProto, host, port);
+        chores.isVerboseForced('webserver', sandboxConfig) &&
+            console.log('webserver is listening on %s://%s:%s', protocol, host, port);
         L.has('silly') && L.log('silly', T.toMessage({
           tags: [ blockRef, 'webserver', 'started' ],
           text: 'webserver has started'
@@ -173,16 +169,12 @@ function WebserverTrigger(params = {}) {
 
   this.stop = function() {
     return new Promise(function(onResolved, onRejected) {
-      L.has('silly') && L.log('silly', T.add({
-        protocol: appProto,
-        host: appHost,
-        port: appPort
-      }).toMessage({
+      L.has('silly') && L.log('silly', T.add({ protocol, host, port }).toMessage({
         tags: [ blockRef, 'webserver', 'stopping' ],
         text: 'webserver is stopping'
       }));
       server.close(function (err) {
-        chores.isVerboseForced('webserver', pluginCfg) &&
+        chores.isVerboseForced('webserver', sandboxConfig) &&
             console.log('webserver has been closed');
         L.has('silly') && L.log('silly', T.toMessage({
           tags: [ blockRef, 'webserver', 'stopped' ],
