@@ -14,81 +14,18 @@ function WebserverTrigger(params = {}) {
   const T = params.loggingFactory.getTracer();
   const packageName = params.packageName || 'app-webserver';
   const blockRef = chores.getBlockRef(__filename, packageName);
-
   const sandboxConfig = params.sandboxConfig || {};
-  const serverCfg = sandboxConfig;
 
-  const host = serverCfg.host || '0.0.0.0';
-  const port = serverCfg.port || 7979;
+  const host = sandboxConfig.host || '0.0.0.0';
+  const port = sandboxConfig.port || 7979;
 
-  let ssl = { available: false };
+  const isLocalhost = SERVER_HOSTS.indexOf(host) >= 0;
+  const ssl = loadSSLConfig({ L, T, blockRef }, sandboxConfig, isLocalhost);
+
   Object.defineProperty(this, 'ssl', {
     get: function() { return lodash.assign({}, ssl) },
     set: function(value) {}
   });
-
-  if (serverCfg.ssl && serverCfg.ssl.enabled) {
-    L.has('silly') && L.log('silly', T.add({
-      sslConfig: serverCfg.ssl
-    }).toMessage({
-      tags: [ blockRef, 'ssl', 'enabled' ],
-      text: 'SSL is enabled'
-    }));
-
-    ssl.ca = serverCfg.ssl.ca;
-    try {
-      ssl.ca = ssl.ca || fs.readFileSync(serverCfg.ssl.ca_file);
-    } catch(error) {
-      L.has('silly') && L.log('silly', T.add({
-        ca: ssl.ca,
-        ca_file: serverCfg.ssl.ca_file,
-        error: error
-      }).toMessage({
-        tags: [ blockRef, 'ssl', 'ca-loading' ],
-        text: 'error on loading CA files[${ca_file}]: ${error}'
-      }));
-    }
-
-    ssl.key = serverCfg.ssl.key;
-    ssl.cert = serverCfg.ssl.cert;
-    try {
-      ssl.key = ssl.key || fs.readFileSync(serverCfg.ssl.key_file);
-      ssl.cert = ssl.cert || fs.readFileSync(serverCfg.ssl.cert_file);
-    } catch(error) {
-      L.has('silly') && L.log('silly', T.add({
-        key: ssl.key,
-        key_file: serverCfg.ssl.key_file,
-        cert: ssl.cert,
-        cert_file: serverCfg.ssl.cert_file,
-        error: error
-      }).toMessage({
-        tags: [ blockRef, 'ssl', 'key-cert-loading' ],
-        text: 'error on loading key/cert files: ${error}'
-      }));
-    }
-
-    if (!ssl.key && !ssl.cert && SERVER_HOSTS.indexOf(host)>=0) {
-      L.has('silly') && L.log('silly', T.toMessage({
-        tags: [ blockRef, 'ssl', 'key-cert-use-default' ],
-        text: 'Using default key/cert for localhost'
-      }));
-      ssl.key = fs.readFileSync(path.join(__dirname, '../../data/ssl/localhost.key.pem'));
-      ssl.cert = fs.readFileSync(path.join(__dirname, '../../data/ssl/localhost.cert.pem'));
-    }
-
-    if (ssl.key && ssl.cert) {
-      ssl.available = true;
-      L.has('silly') && L.log('silly', T.add({ ssl }).toMessage({
-        tags: [ blockRef, 'ssl', 'available' ],
-        text: 'HTTPs is available'
-      }));
-    }
-  } else {
-    L.has('silly') && L.log('silly', T.toMessage({
-      tags: [ blockRef, 'ssl', 'disabled' ],
-      text: 'SSL is disabled'
-    }));
-  }
 
   const protocol = ssl.available ? 'https' : 'http';
 
@@ -209,3 +146,72 @@ function WebserverTrigger(params = {}) {
 };
 
 module.exports = WebserverTrigger;
+
+function loadSSLConfig (ctx = {}, serverCfg = {}, isLocalhost) {
+  const { L, T, blockRef } = ctx;
+  const ssl = { available: false };
+  if (serverCfg.ssl && serverCfg.ssl.enabled) {
+    L.has('silly') && L.log('silly', T.add({
+      sslConfig: serverCfg.ssl
+    }).toMessage({
+      tags: [ blockRef, 'ssl', 'enabled' ],
+      text: 'SSL is enabled'
+    }));
+
+    ssl.ca = serverCfg.ssl.ca;
+    try {
+      ssl.ca = ssl.ca || fs.readFileSync(serverCfg.ssl.ca_file);
+    } catch(error) {
+      L.has('silly') && L.log('silly', T.add({
+        ca: ssl.ca,
+        ca_file: serverCfg.ssl.ca_file,
+        error: error
+      }).toMessage({
+        tags: [ blockRef, 'ssl', 'ca-loading' ],
+        text: 'error on loading CA files[${ca_file}]: ${error}'
+      }));
+    }
+
+    ssl.key = serverCfg.ssl.key;
+    ssl.cert = serverCfg.ssl.cert;
+    try {
+      ssl.key = ssl.key || fs.readFileSync(serverCfg.ssl.key_file);
+      ssl.cert = ssl.cert || fs.readFileSync(serverCfg.ssl.cert_file);
+    } catch(error) {
+      L.has('silly') && L.log('silly', T.add({
+        key: ssl.key,
+        key_file: serverCfg.ssl.key_file,
+        cert: ssl.cert,
+        cert_file: serverCfg.ssl.cert_file,
+        error: error
+      }).toMessage({
+        tags: [ blockRef, 'ssl', 'key-cert-loading' ],
+        text: 'error on loading key/cert files: ${error}'
+      }));
+    }
+
+    if (!ssl.key && !ssl.cert && isLocalhost) {
+      L.has('silly') && L.log('silly', T.toMessage({
+        tags: [ blockRef, 'ssl', 'key-cert-use-default' ],
+        text: 'Using default key/cert for localhost'
+      }));
+      ssl.key = fs.readFileSync(path.join(__dirname, '../../data/ssl/localhost.key.pem'));
+      ssl.cert = fs.readFileSync(path.join(__dirname, '../../data/ssl/localhost.cert.pem'));
+    }
+
+    if (ssl.key && ssl.cert) {
+      ssl.available = true;
+      L.has('silly') && L.log('silly', T.add({ ssl }).toMessage({
+        tags: [ blockRef, 'ssl', 'available' ],
+        text: 'HTTPs is available'
+      }));
+    }
+  } else {
+    L.has('silly') && L.log('silly', T.toMessage({
+      tags: [ blockRef, 'ssl', 'disabled' ],
+      text: 'SSL is disabled'
+    }));
+  }
+
+  return ssl;
+}
