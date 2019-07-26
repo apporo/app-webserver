@@ -1,8 +1,5 @@
 module.exports = {
-  newFeatures: {
-    appWebserver: {
-      logoliteEnabled: true,
-      sandboxConfig: true
-    }
+  devebot: {
+    mode: 'silent'
   }
 };

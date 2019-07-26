@@ -1,36 +1,30 @@
 'use strict';
 
-var Devebot = require('devebot');
-var chores = Devebot.require('chores');
-var debugx = Devebot.require('pinbug')('app-webserver:example');
 var express = require('express');
 
-var Service = function(params) {
-  debugx.enabled && debugx(' + constructor begin ...');
-
+function Service (params) {
   params = params || {};
-  var self = this;
 
-  var LX = params.loggingFactory.getLogger();
-  var LT = params.loggingFactory.getTracer();
+  var L = params.loggingFactory.getLogger();
+  var T = params.loggingFactory.getTracer();
 
   var pluginCfg = params.sandboxConfig;
-  debugx.enabled && debugx('configuration: %s', JSON.stringify(pluginCfg));
+  L.has('silly') && L.log('silly', 'configuration: %s', JSON.stringify(pluginCfg));
 
   if (pluginCfg.enabled !== false) {
     var app = express();
 
     app.use('*', function(req, res, next) {
       process.nextTick(function() {
-        debugx('=@ example receives a new request:');
-        debugx(' - Invoker IP: %s / %s', req.ip, JSON.stringify(req.ips));
-        debugx(' - protocol: ' + req.protocol);
-        debugx(' - host: ' + req.hostname);
-        debugx(' - path: ' + req.path);
-        debugx(' - URL: ' + req.url);
-        debugx(' - originalUrl: ' + req.originalUrl);
-        debugx(' - body: ' + JSON.stringify(req.body));
-        debugx(' - user-agent: ' + req.headers['user-agent']);
+        L.log('silly', '=@ example receives a new request:');
+        L.log('silly', ' - Invoker IP: %s / %s', req.ip, JSON.stringify(req.ips));
+        L.log('silly', ' - protocol: ' + req.protocol);
+        L.log('silly', ' - host: ' + req.hostname);
+        L.log('silly', ' - path: ' + req.path);
+        L.log('silly', ' - URL: ' + req.url);
+        L.log('silly', ' - originalUrl: ' + req.originalUrl);
+        L.log('silly', ' - body: ' + JSON.stringify(req.body));
+        L.log('silly', ' - user-agent: ' + req.headers['user-agent']);
       });
       next();
     });
@@ -43,8 +37,6 @@ var Service = function(params) {
 
     params.webserverTrigger.server.on('request', app);
   }
-
-  debugx.enabled && debugx(' - constructor end!');
 };
 
 Service.referenceList = [ 'webserverTrigger' ];

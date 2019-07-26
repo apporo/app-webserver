@@ -9,19 +9,17 @@ const https = require('https');
 
 const SERVER_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost'];
 
-function WebserverTrigger(params) {
-  params = params || {};
+function WebserverTrigger(params = {}) {
+  const L = params.loggingFactory.getLogger();
+  const T = params.loggingFactory.getTracer();
+  const packageName = params.packageName || 'app-webserver';
+  const blockRef = chores.getBlockRef(__filename, packageName);
 
-  let LX = params.loggingFactory.getLogger();
-  let LT = params.loggingFactory.getTracer();
-  let packageName = params.packageName || 'app-webserver';
-  let blockRef = chores.getBlockRef(__filename, packageName);
+  const pluginCfg = params.sandboxConfig || {};
+  const serverCfg = pluginCfg;
 
-  let pluginCfg = params.sandboxConfig || {};
-  let serverCfg = pluginCfg;
-
-  let appHost = serverCfg.host || '0.0.0.0';
-  let appPort = serverCfg.port || 7979;
+  const appHost = serverCfg.host || '0.0.0.0';
+  const appPort = serverCfg.port || 7979;
   let appProto = 'http';
 
   let ssl = { available: false };
@@ -33,7 +31,7 @@ function WebserverTrigger(params) {
   if (serverCfg.ssl && serverCfg.ssl.enabled) {
     serverCfg.ssl = serverCfg.ssl || {};
 
-    LX.has('silly') && LX.log('silly', LT.add({
+    L.has('silly') && L.log('silly', T.add({
       sslConfig: serverCfg.ssl
     }).toMessage({
       tags: [ blockRef, 'ssl', 'enabled' ],
@@ -44,7 +42,7 @@ function WebserverTrigger(params) {
     try {
       ssl.ca = ssl.ca || fs.readFileSync(serverCfg.ssl.ca_file);
     } catch(error) {
-      LX.has('silly') && LX.log('silly', LT.add({
+      L.has('silly') && L.log('silly', T.add({
         ca: ssl.ca,
         ca_file: serverCfg.ssl.ca_file,
         error: error
@@ -60,7 +58,7 @@ function WebserverTrigger(params) {
       ssl.key = ssl.key || fs.readFileSync(serverCfg.ssl.key_file);
       ssl.cert = ssl.cert || fs.readFileSync(serverCfg.ssl.cert_file);
     } catch(error) {
-      LX.has('silly') && LX.log('silly', LT.add({
+      L.has('silly') && L.log('silly', T.add({
         key: ssl.key,
         key_file: serverCfg.ssl.key_file,
         cert: ssl.cert,
@@ -73,7 +71,7 @@ function WebserverTrigger(params) {
     }
 
     if (!ssl.key && !ssl.cert && SERVER_HOSTS.indexOf(appHost)>=0) {
-      LX.has('silly') && LX.log('silly', LT.toMessage({
+      L.has('silly') && L.log('silly', T.toMessage({
         tags: [ blockRef, 'ssl', 'key-cert-use-default' ],
         text: 'Using default key/cert for localhost'
       }));
@@ -84,15 +82,13 @@ function WebserverTrigger(params) {
     if (ssl.key && ssl.cert) {
       appProto = 'https';
       ssl.available = true;
-      LX.has('silly') && LX.log('silly', LT.add({
-        ssl: ssl
-      }).toMessage({
+      L.has('silly') && L.log('silly', T.add({ ssl }).toMessage({
         tags: [ blockRef, 'ssl', 'available' ],
         text: 'HTTPs is available'
       }));
     }
   } else {
-    LX.has('silly') && LX.log('silly', LT.toMessage({
+    L.has('silly') && L.log('silly', T.toMessage({
       tags: [ blockRef, 'ssl', 'disabled' ],
       text: 'SSL is disabled'
     }));
@@ -113,18 +109,18 @@ function WebserverTrigger(params) {
   });
 
   this.attach = this.register = function(outlet) {
-    LX.has('silly') && LX.log('silly', LT.toMessage({
+    L.has('silly') && L.log('silly', T.toMessage({
       tags: [ blockRef, 'attach', 'begin' ],
       text: 'attach() - try to register a outlet'
     }));
     if (server.listeners('request').indexOf(outlet) >= 0) {
-      LX.has('silly') && LX.log('silly', LT.toMessage({
+      L.has('silly') && L.log('silly', T.toMessage({
         tags: [ blockRef, 'attach', 'skip' ],
         text: 'attach() - outlet has already attached. skip!'
       }));
     } else {
       server.addListener('request', outlet);
-      LX.has('silly') && LX.log('silly', LT.toMessage({
+      L.has('silly') && L.log('silly', T.toMessage({
         tags: [ blockRef, 'attach', 'done' ],
         text: 'attach() - attach the outlet'
       }));
@@ -132,18 +128,18 @@ function WebserverTrigger(params) {
   }
 
   this.detach = this.unregister = function(outlet) {
-    LX.has('silly') && LX.log('silly', LT.toMessage({
+    L.has('silly') && L.log('silly', T.toMessage({
       tags: [ blockRef, 'detach', 'begin' ],
       text: 'detach() - try to unregister a outlet'
     }));
     if (server.listeners('request').indexOf(outlet) >= 0) {
       server.removeListener('request', outlet);
-      LX.has('silly') && LX.log('silly', LT.toMessage({
+      L.has('silly') && L.log('silly', T.toMessage({
         tags: [ blockRef, 'detach', 'done' ],
         text: 'detach() - detach the outlet'
       }));
     } else {
-      LX.has('silly') && LX.log('silly', LT.toMessage({
+      L.has('silly') && L.log('silly', T.toMessage({
         tags: [ blockRef, 'detach', 'skip' ],
         text: 'detach() - outlet is not available. skip!'
       }));
@@ -153,7 +149,7 @@ function WebserverTrigger(params) {
   this.start = function() {
     if (serverCfg.enabled === false) return Promise.resolve();
     return new Promise(function(onResolved, onRejected) {
-      LX.has('silly') && LX.log('silly', LT.add({
+      L.has('silly') && L.log('silly', T.add({
         protocol: appProto,
         host: appHost,
         port: appPort
@@ -166,7 +162,7 @@ function WebserverTrigger(params) {
         let port = serverInstance.address().port;
         chores.isVerboseForced('webserver', pluginCfg) &&
             console.log('webserver is listening on %s://%s:%s', appProto, host, port);
-        LX.has('silly') && LX.log('silly', LT.toMessage({
+        L.has('silly') && L.log('silly', T.toMessage({
           tags: [ blockRef, 'webserver', 'started' ],
           text: 'webserver has started'
         }));
@@ -177,7 +173,7 @@ function WebserverTrigger(params) {
 
   this.stop = function() {
     return new Promise(function(onResolved, onRejected) {
-      LX.has('silly') && LX.log('silly', LT.add({
+      L.has('silly') && L.log('silly', T.add({
         protocol: appProto,
         host: appHost,
         port: appPort
@@ -188,7 +184,7 @@ function WebserverTrigger(params) {
       server.close(function (err) {
         chores.isVerboseForced('webserver', pluginCfg) &&
             console.log('webserver has been closed');
-        LX.has('silly') && LX.log('silly', LT.toMessage({
+        L.has('silly') && L.log('silly', T.toMessage({
           tags: [ blockRef, 'webserver', 'stopped' ],
           text: 'webserver has stopped'
         }));
