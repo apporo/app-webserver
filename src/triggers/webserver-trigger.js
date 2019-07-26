@@ -92,7 +92,7 @@ function WebserverTrigger(params = {}) {
 
   const protocol = ssl.available ? 'https' : 'http';
 
-  let server = ssl.available ? https.createServer({
+  const server = ssl.available ? https.createServer({
     ca: ssl.ca,
     cert: ssl.cert,
     key: ssl.key,
