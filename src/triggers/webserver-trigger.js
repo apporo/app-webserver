@@ -28,8 +28,6 @@ function WebserverTrigger(params = {}) {
   });
 
   if (serverCfg.ssl && serverCfg.ssl.enabled) {
-    serverCfg.ssl = serverCfg.ssl || {};
-
     L.has('silly') && L.log('silly', T.add({
       sslConfig: serverCfg.ssl
     }).toMessage({
@@ -147,7 +145,7 @@ function WebserverTrigger(params = {}) {
   }
 
   this.start = function() {
-    if (serverCfg.enabled === false) return Promise.resolve();
+    if (sandboxConfig.enabled === false) return Promise.resolve();
     return new Promise(function(onResolved, onRejected) {
       L.has('silly') && L.log('silly', T.add({ protocol, host, port }).toMessage({
         tags: [ blockRef, 'webserver', 'starting' ],
@@ -168,6 +166,7 @@ function WebserverTrigger(params = {}) {
   };
 
   this.stop = function() {
+    if (sandboxConfig.enabled === false) return Promise.resolve();
     return new Promise(function(onResolved, onRejected) {
       L.has('silly') && L.log('silly', T.add({ protocol, host, port }).toMessage({
         tags: [ blockRef, 'webserver', 'stopping' ],
