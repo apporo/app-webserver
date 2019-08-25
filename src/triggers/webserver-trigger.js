@@ -4,17 +4,17 @@ const Devebot = require('devebot');
 const chores = Devebot.require('chores');
 const lodash = Devebot.require('lodash');
 const fs = require('fs');
+const path = require('path');
 const http = require('http');
 const https = require('https');
 
 const SERVER_HOSTS = ['0.0.0.0', '127.0.0.1', 'localhost'];
 
 function WebserverTrigger(params = {}) {
-  const L = params.loggingFactory.getLogger();
-  const T = params.loggingFactory.getTracer();
-  const packageName = params.packageName || 'app-webserver';
+  const { packageName, sandboxConfig, loggingFactory } = params;
+  const L = loggingFactory.getLogger();
+  const T = loggingFactory.getTracer();
   const blockRef = chores.getBlockRef(__filename, packageName);
-  const sandboxConfig = params.sandboxConfig || {};
 
   const host = sandboxConfig.host || '0.0.0.0';
   const port = sandboxConfig.port || 7979;
@@ -112,19 +112,28 @@ function WebserverTrigger(params = {}) {
       server.close(function (err) {
         chores.isVerboseForced('webserver', sandboxConfig) &&
             console.log('webserver has been closed');
-        L.has('silly') && L.log('silly', T.toMessage({
-          tags: [ blockRef, 'webserver', 'stopped' ],
-          text: 'webserver has stopped'
-        }));
-        onResolved();
+        // https://nodejs.org/api/net.html#net_server_close_callback
+        if (err) {
+          L.has('error') && L.log('error', T.toMessage({
+            tags: [ blockRef, 'webserver', 'stopped' ],
+            text: 'the webserver was not open when it was closed'
+          }));
+          onRejected(err);
+        } else {
+          L.has('silly') && L.log('silly', T.toMessage({
+            tags: [ blockRef, 'webserver', 'stopped' ],
+            text: 'the webserver has stopped successfully'
+          }));
+          onResolved();
+        }
       });
     });
   };
 
   this.getServiceInfo = function() {
     return {
-      webserver_host: configHost,
-      webserver_port: configPort
+      webserver_host: host,
+      webserver_port: port
     };
   };
 
@@ -161,7 +170,7 @@ function loadSSLConfig (ctx = {}, serverCfg = {}, isLocalhost) {
     ssl.ca = serverCfg.ssl.ca;
     try {
       ssl.ca = ssl.ca || fs.readFileSync(serverCfg.ssl.ca_file);
-    } catch(error) {
+    } catch (error) {
       L.has('silly') && L.log('silly', T.add({
         ca: ssl.ca,
         ca_file: serverCfg.ssl.ca_file,
@@ -177,7 +186,7 @@ function loadSSLConfig (ctx = {}, serverCfg = {}, isLocalhost) {
     try {
       ssl.key = ssl.key || fs.readFileSync(serverCfg.ssl.key_file);
       ssl.cert = ssl.cert || fs.readFileSync(serverCfg.ssl.cert_file);
-    } catch(error) {
+    } catch (error) {
       L.has('silly') && L.log('silly', T.add({
         key: ssl.key,
         key_file: serverCfg.ssl.key_file,

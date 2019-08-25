@@ -9,14 +9,12 @@
     "url": "https://github.com/apporo"
   },
   "main": "index.js",
-  "directories": {
-    "lib": "lib/"
-  },
   "files": [
     "bin/",
     "config/",
     "data/",
-    "lib/"
+    "lib/",
+    "manifest.js"
   ],
   "scripts": {
     "build": "babel ./src -d ./lib",
@@ -24,7 +22,8 @@
     "prepublish": "npm run clean && cross-env NODE_ENV=${DEVEBOT_NODE_ENV:-production} npm run build",
     "pretest": "npm run clean && cross-env NODE_ENV=${DEVEBOT_NODE_ENV:-test} npm run build",
     "test": "mocha ./test/{bdd,tdd}/*test.js",
-    "verify": "npm run prepublish && mocha ./test/{bdd,tdd}/*test.js"
+    "verify": "npm run prepublish && mocha ./test/{bdd,tdd}/*test.js",
+    "eslint": "eslint ./src/ --quiet"
   },
   "keywords": [
     "devebot",
@@ -41,6 +40,12 @@
     "babel-plugin-minify-mangle-names": "^0.3.0",
     "babel-preset-env": "^1.6.1",
     "cross-env": "^5.2.0",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
     "liberica": "^0.3.1",
     "mocha": "^6.2.0"
   }
