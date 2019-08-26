@@ -1,8 +1,0 @@
-{
-  "apps": [{
-    "name": "app-webserver-example",
-    "script": "test/app",
-    "watch": true,
-    "env": {}
-  }]
-}

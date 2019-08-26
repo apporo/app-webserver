@@ -7,6 +7,7 @@ function Service (params) {
 
   var L = params.loggingFactory.getLogger();
   var T = params.loggingFactory.getTracer();
+  var webserverTrigger = params.webserverTrigger;
 
   var pluginCfg = params.sandboxConfig;
   L.has('silly') && L.log('silly', 'configuration: %s', JSON.stringify(pluginCfg));
@@ -31,14 +32,18 @@ function Service (params) {
 
     app.get('/example/:id', function(req, res) {
       res.status(200).json({
+        port: webserverTrigger.getPort(),
+        host: webserverTrigger.getHost(),
         message: 'example [' + req.params.id + '] request successfully'
       });
     });
 
-    params.webserverTrigger.server.on('request', app);
+    webserverTrigger.server.on('request', app);
   }
 };
 
-Service.referenceList = [ 'webserverTrigger' ];
+Service.referenceHash = {
+  webserverTrigger: 'webserverTrigger'
+};
 
 module.exports = Service;

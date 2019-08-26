@@ -16,8 +16,15 @@ function WebserverTrigger(params = {}) {
   const T = loggingFactory.getTracer();
   const blockRef = chores.getBlockRef(__filename, packageName);
 
-  const host = sandboxConfig.host || '0.0.0.0';
-  const port = sandboxConfig.port || 7979;
+  let { port, host } = extractConfigAddress(sandboxConfig);
+
+  this.getPort = function () {
+    return port;
+  }
+
+  this.getHost = function () {
+    return host;
+  }
 
   const isLocalhost = SERVER_HOSTS.indexOf(host) >= 0;
   const ssl = loadSSLConfig({ L, T, blockRef }, sandboxConfig, isLocalhost);
@@ -88,9 +95,9 @@ function WebserverTrigger(params = {}) {
         tags: [ blockRef, 'webserver', 'starting' ],
         text: 'webserver is starting'
       }));
-      let serverInstance = server.listen(port, host, function () {
-        let host = serverInstance.address().address;
-        let port = serverInstance.address().port;
+      const serverInstance = server.listen.apply(server, buildListenArgs(port, host, function () {
+        port = serverInstance.address().port;
+        host = serverInstance.address().address;
         chores.isVerboseForced('webserver', sandboxConfig) &&
             console.log('webserver is listening on %s://%s:%s', protocol, host, port);
         L.has('silly') && L.log('silly', T.toMessage({
@@ -98,7 +105,7 @@ function WebserverTrigger(params = {}) {
           text: 'webserver has started'
         }));
         onResolved(serverInstance);
-      });
+      }));
     });
   };
 
@@ -155,6 +162,30 @@ function WebserverTrigger(params = {}) {
 };
 
 module.exports = WebserverTrigger;
+
+function extractConfigAddress (sandboxConfig) {
+  let port = 7979;
+  if ('port' in sandboxConfig) {
+    port = sandboxConfig.port;
+  }
+  let host = '0.0.0.0';
+  if ('host' in sandboxConfig) {
+    host = sandboxConfig.host;
+  }
+  return { port, host }
+}
+
+function buildListenArgs (port, host, callback) {
+  const listenParams = [];
+  if (!lodash.isNil(port)) {
+    listenParams.push(port);
+  }
+  if (!lodash.isNil(host)) {
+    listenParams.push(host);
+  }
+  listenParams.push(callback);
+  return listenParams;
+}
 
 function loadSSLConfig (ctx = {}, serverCfg = {}, isLocalhost) {
   const { L, T, blockRef } = ctx;

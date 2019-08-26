@@ -8,7 +8,14 @@ module.exports = {
             "type": "boolean"
           },
           "host": {
-            "type": "string"
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string"
+              }
+            ]
           },
           "port": {
             "oneOf": [

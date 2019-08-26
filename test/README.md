@@ -4,6 +4,14 @@
 
 ### Run
 
+Auto detect the port:
+
+```
+export DEVEBOT_SANDBOX=autoport
+```
+
+Start the server:
+
 ```shell
 export DEBUG=devebot*,app*
 export LOGOLITE_DEBUGLOG_ENABLED=true
